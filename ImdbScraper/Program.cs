@@ -14,7 +14,7 @@ namespace ImdbScraper
     class Program
     {
         
-        List<string> urllist = new List<string>();
+        static List<string> urllist = new List<string>();
 
         string aurl = "https://www.imdb.com/title/tt0111161/reviews/_ajax?ref_=undefined&paginationKey=";
         public async void GetHtml(string u)
@@ -65,7 +65,7 @@ namespace ImdbScraper
 
 
             
-            if (nxt_url!=null)
+            if (nxt_url.Count!=0)
             {
                 foreach (var item in nxt_url)
                 {
@@ -80,9 +80,11 @@ namespace ImdbScraper
 
                 }
             }
-            else
+            else if(nxt_url.Count==0)
             {
                 Console.WriteLine("idk whats happening");
+                ScrapenSave();
+
 
             }
 
@@ -94,16 +96,16 @@ namespace ImdbScraper
         {
             var url = urllist;
             int rev_count = 1;
-
+            Console.WriteLine("Urls: "+urllist.Count.ToString());
             var records = new List<dynamic>();
 
             foreach (var stuff in url)
             {
 
-
+                 string fin_url = aurl + stuff;
                 var httpClient = new HttpClient();
 
-                var html = await httpClient.GetStringAsync(stuff);
+                var html = await httpClient.GetStringAsync(fin_url);
 
                 var htmlDocument = new HtmlDocument();
                 htmlDocument.LoadHtml(html);
@@ -167,12 +169,11 @@ namespace ImdbScraper
         {
 
             Program p = new Program();
-            string url = "https://www.imdb.com/title/tt0111161/reviews/_ajax?ref_=undefined&paginationKey=g4wp7crpqi2doyae7kthfmzsrxu4oazhzfmxvlnomwklyczuf43o6ssyom3f3prcdf4k4bjov7zkyo2coo3giwhdgifllei";
             string url2 = "https://www.imdb.com/title/tt0111161/reviews?ref_=tt_ql_3";
             p.GetUrls(url2);
             // p.GetHtml(url);
             Console.WriteLine("Done!");
-            p.ScrapenSave();
+            
             Console.WriteLine("Saving to Excel");
             Console.ReadLine();
         }
@@ -180,28 +181,3 @@ namespace ImdbScraper
 }
 
 
-
-/*
-  if (nexturl != null)
-            {
-                foreach (var item in nexturl)
-                {
-                    string datakey = item.GetAttributeValue("data-key", "").ToString();
-                    string ajaxurl = item.GetAttributeValue("data-ajaxurl", "").ToString();
-
-                    finurl = "https://wwww.imdb.com" + ajaxurl + "?ref_=undefined&paginationKey=" + datakey;
-                    GetHtml(finurl);
-
-                }
-                    
-                
-            }
-            else
-            {
-                Console.WriteLine("hard cheese");
-            }
-           
-     
-     
-     
-     */
