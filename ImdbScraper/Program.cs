@@ -16,7 +16,7 @@ namespace ImdbScraper
         
         static List<string> urllist = new List<string>();
 
-        string aurl = "https://www.imdb.com/title/tt0111161/reviews/_ajax?ref_=undefined&paginationKey=";
+        //string aurl = "https://www.imdb.com/title/tt0111161/reviews/_ajax?ref_=undefined&paginationKey=";
         public async void GetHtml(string u)
         {
             
@@ -48,6 +48,8 @@ namespace ImdbScraper
         
         public async void GetUrls(string u)
         {
+            string toappend = "/_ajax?ref_=undefined&paginationKey=";
+            string aurl = u.Substring(0, 44) + toappend;
             var init_url = u;
 
             var httpCli = new HttpClient();
@@ -74,16 +76,16 @@ namespace ImdbScraper
 
                     urllist.Add(url);
                     string succ_url = aurl + url;
-                    Console.WriteLine(succ_url);
+                    //Console.WriteLine(succ_url);
                     GetUrls(succ_url);
-                    Console.WriteLine("Scraping...");
+                    Console.WriteLine("----------------------- Crawling and Saving URLs...  -----------------");
 
                 }
             }
             else if(nxt_url.Count==0)
             {
-                Console.WriteLine("idk whats happening");
-                ScrapenSave();
+                Console.WriteLine("            Crawl Successful             ");
+                ScrapenSave(u);
 
 
             }
@@ -92,11 +94,14 @@ namespace ImdbScraper
         }
 
 
-        public async void ScrapenSave()
+        public async void ScrapenSave(string u)
         {
+            string toappend = "/_ajax?ref_=undefined&paginationKey=";
+            string aurl = u.Substring(0, 44) + toappend;
+           // string title = u.Substring(26,36).ToString();
             var url = urllist;
             int rev_count = 1;
-            Console.WriteLine("Urls: "+urllist.Count.ToString());
+            //Console.WriteLine("Urls: "+urllist.Count.ToString());
             var records = new List<dynamic>();
 
             foreach (var stuff in url)
@@ -115,14 +120,14 @@ namespace ImdbScraper
                 // var load = htmlDocument.DocumentNode.Descendants("button")
                 //       .Where(node => node.GetAttributeValue("id", "").Contains("load-more-trigger")).ToList();
 
-
+               
                 var Review = htmlDocument.DocumentNode.Descendants("div")
                     .Where(node => node.GetAttributeValue("class", "notfound").Equals("content")).ToList();
 
 
                 foreach (var item in Review)
                 {
-                    Console.WriteLine("Count: " + rev_count);
+                    Console.WriteLine("Reviews Retrieved --> " + rev_count);
                     //Console.WriteLine(item.Descendants("div").FirstOrDefault().InnerText.Trim().ToString());
                     string review = item.Descendants("div").FirstOrDefault().InnerText.Trim().ToString();
                     // Console.WriteLine(review);
@@ -140,15 +145,15 @@ namespace ImdbScraper
 
 
 
-
-            using (var writer = new StreamWriter(@"D:\Games\bulk3.csv"))
+            
+            using (var writer = new StreamWriter(@"D:\Scraped.csv"))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
 
 
                 csv.WriteRecords(records);
 
-                Console.WriteLine("wriiten");
+                Console.WriteLine("CSV File Saved to Drive D as Scraped.csv :)");
 
             }
 
@@ -169,12 +174,12 @@ namespace ImdbScraper
         {
 
             Program p = new Program();
-            string url2 = "https://www.imdb.com/title/tt0111161/reviews?ref_=tt_ql_3";
+            Console.WriteLine("Paste the URL from the IMDB Reviews Page: ");
+            string url2 = Console.ReadLine();
+            //string url2 = "https://www.imdb.com/title/tt0111161/reviews?ref_=tt_ql_3";
             p.GetUrls(url2);
             // p.GetHtml(url);
-            Console.WriteLine("Done!");
             
-            Console.WriteLine("Saving to Excel");
             Console.ReadLine();
         }
     }
